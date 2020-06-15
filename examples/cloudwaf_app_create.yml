@@ -1,0 +1,32 @@
+---
+
+- name: Execute cloud api
+  hosts: fortiwebcloud01
+  gather_facts: no
+  collections:
+    - fortinet.fortiwebcloud
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_port: 443
+    application_name:  "YOUR_APP_NAME"
+
+  tasks:
+    - name: Create an application.
+      cloudwaf_app_create:
+        app_name: "{{application_name}}"
+        domain_name: "www.example.com"
+        extra_domains:
+          - a.example.com
+          - b.example.com
+        app_service:
+          http: 80
+          https: 443
+
+        origin_server_ip: "166.111.4.100"
+        origin_server_service: "HTTPS"
+        origin_server_port: "443"
+        cdn: False
+        block: False
+        template: "your-template-name-or-empty"

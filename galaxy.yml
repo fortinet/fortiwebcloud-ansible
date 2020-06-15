@@ -1,0 +1,20 @@
+namespace: "fortinet"
+name: "fortiwebcloud"
+version: "1.0.0"
+description: "A collection of Ansible Modules for FortiwebCloud"
+readme: "README.md"
+authors:
+    - Xilong Li (@xilongli14)
+    - Xiangrang Zhang (@xrzhang3707)
+dependencies: { }
+license:
+    - "MIT"
+tags:
+    - fortiwebcloud
+    - networking
+    - WAF
+    - security
+    - fortinet
+repository: "https://github.com/fortinet/fortiwebcloud-ansible"
+homepage: "https://www.fortinet.com"
+issues: "https://github.com/fortinet/fortiwebcloud-ansible/issues"

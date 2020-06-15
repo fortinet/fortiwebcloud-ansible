@@ -1,0 +1,18 @@
+---
+
+- name: Execute cloud api
+  hosts: fortiwebcloud01
+  gather_facts: no
+  collections:
+    - fortinet.fortiwebcloud
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: True
+    ansible_httpapi_port: 443
+    application_name:  "YOUR_APP_NAME"
+
+  tasks:
+    - name: Delete the application.
+      cloudwaf_app_delete:
+        app_name: "{{application_name}}"

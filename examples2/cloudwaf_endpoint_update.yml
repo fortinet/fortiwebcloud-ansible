@@ -1,0 +1,36 @@
+---
+
+- name: Execute cloud api
+  hosts: fortiwebcloud01
+  gather_facts: no
+  collections:
+    - fortinet.fortiwebcloud
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_port: 443
+    application_name:  "YOUR_APP_NAME"
+
+  tasks:
+    - name: Update an endpoint.
+      cloudwaf_endpoint_update:
+        api_token: "You must specify a token."
+        app_name: "{{application_name}}"
+        http_status: 1
+        https_status: 1
+        http2_status: 0
+        ipv6_option: 0
+        extra_domains: []
+        cert_type: 1
+        ssl_options:
+          tls_1_0: 0
+          tls_1_1: 0
+          tls_1_2: 1
+          tls_1_3: 1
+          encryption_level: 2
+          http_2_https: 1
+        custom_block_page: disable
+        block_url: ''
+        custom_http_port: 80
+        custom_https_port: 443

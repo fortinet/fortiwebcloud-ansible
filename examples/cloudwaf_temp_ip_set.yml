@@ -1,0 +1,34 @@
+---
+
+- hosts: fortiwebcloud01
+  name: Execute cloud api
+  collections:
+   - fortinet.fortiwebcloud
+  gather_facts: no
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: True
+    ansible_httpapi_port: 443
+    template_name:  "YOUR_TEMP_NAME"
+  tasks:
+  - name: Configure IP Protection.
+    cloudwaf_ip_protection_method:
+      temp_name: "{{template_name}}"
+      template_status: disable
+      status: enable
+      IPProtection:
+        ip-reputation: enable
+        geo-ip-block:
+          members:
+            - Antigua And Barbuda
+            - Aland Islands
+            - Afghanistan
+        ip-list:
+          members:
+            - type: trust-ip
+              ip: '1.1.1.1,2.2.2.21-2.2.2.27'
+            - type: block-ip
+              ip: '3.1.1.1,3.1.1.11-3.1.1.17'
+            - type: allow-only-ip
+              ip: '4.1.1.1-4.1.1.17,4.1.1.19'

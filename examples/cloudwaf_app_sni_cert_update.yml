@@ -1,0 +1,21 @@
+---
+
+- hosts: fortiwebcloud01
+  name: Execute cloud api
+  collections:
+   - fortinet.fortiwebcloud
+  gather_facts: no
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: True
+    ansible_httpapi_port: 443
+    application_name:  "YOUR_APP_NAME"
+  tasks:
+  - name: Configure SNI certificates.
+    cloudwaf_sni_cert_method:
+      app_name: "{{application_name}}"
+      action: import
+      certificate: <YOUR-CERTIFICATE>
+      private_key: <YOUR_PRIVATE_KEY>
+      passwd: 123456

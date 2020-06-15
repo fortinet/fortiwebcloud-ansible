@@ -1,0 +1,6 @@
+[fortiwebcloud]
+fortiwebcloud01 ansible_host="api.fortiweb-cloud.com" ansible_user="Your Account" ansible_password="Your Password"
+
+[fortiwebcloud:vars]
+ansible_network_os=fortinet.fortiwebcloud.fortiwebcloud
+
