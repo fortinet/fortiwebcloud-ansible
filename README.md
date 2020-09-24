@@ -27,9 +27,14 @@ This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.c
 | --- | :---: |
 | cloudwaf_app_create | Onboard an application in Fortinet's FortiWeb Cloud. |
 | cloudwaf_app_delete | Delete an application from Fortinet's FortiWeb Cloud. |
-| cloudwaf_ip_protection_method | Configure IP protection settings in Fortinet's FortiWeb Cloud. |
+| cloudwaf_ip_protection_method | Configure IP Protection settings in Fortinet's FortiWeb Cloud. |
+| cloudwaf_endpoint_update | Modify the endpoint configuration of the application. |
+| cloudwaf_inter_cert_method | Configure intermediate certificates for the application. |
+| cloudwaf_sni_cert_method | Configure SNI certificates for the application. |
 
 ## Usage
+
+More information about the usage can be found in [Fortinet's FortiWeb Cloud Online Help](https://docs.fortinet.com/document/fortiweb-cloud/latest/user-guide/956788/configuring-fortiweb-cloud-with-ansible).
 
 **Example to create an application in Fortinet's FortiWeb Cloud**
 
@@ -119,7 +124,7 @@ This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.c
     ansible-playbook fwbcld_app_delete.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
     ```
 
-**Example to configure IP protection attributes in Fortinet's FortiWeb Cloud**
+**Example to configure IP Protection attributes in Fortinet's FortiWeb Cloud**
 
 1. Create `fwbcld_app_ip_set.yml` with the following template:
 
@@ -175,7 +180,211 @@ This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.c
     ansible-playbook fwbcld_app_delete.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
     ```
 
+**Example to create an application with custom certificate in Fortinet's FortiWeb Cloud**
+
+1. Create `fwbcld_app_with_custom_cert.yml` with the following template:
+
+   ```yaml
+   ---
+   - hosts: fortiwebcloud01
+     collections:
+       - fortinet.fortiwebcloud
+     connection: httpapi
+     vars:
+       application_name:  "YOUR_APP_NAME"
+       ansible_httpapi_validate_certs: False
+       ansible_httpapi_use_ssl: true
+       ansible_httpapi_port: 443
+     tasks:
+       - name: Create an application.
+         cloudwaf_app_create:
+           app_name: "{{application_name}}"
+           domain_name: "www.demo.com"
+           extra_domains:
+             - a.example.com
+             - b.example.com
+           app_service:
+             http: 80
+             https: 443
+           origin_server_ip: "166.111.4.100"
+           origin_server_service: "HTTPS"
+           origin_server_port: "443"
+           cdn: False
+           block: False
+           template: "your-template-name-or-empty"
+       - name: sleep 120 seconds for the added app take effect
+         wait_for:
+           timeout: 120
+         delegate_to: localhost
+       - name: Update an application.
+         cloudwaf_endpoint_update:
+           app_name: "{{application_name}}"
+           http_status: 1
+           https_status: 1
+           http2_status: 1
+           extra_domains: [a.example.com, b.example.com]
+           cert_type: 1
+           ssl_options:
+             tls_1_0: 0
+             tls_1_1: 0
+             tls_1_2: 1
+             tls_1_3: 1
+             encryption_level: 1
+             http_2_https: 1
+           custom_block_page: enable
+           block_url: ''
+           custom_http_port: 80
+           custom_https_port: 443
+       - name: Configure intermediate certificates.
+         cloudwaf_inter_cert_method:
+           app_name: "{{application_name}}"
+           action: import
+           certificate: |
+             -----BEGIN CERTIFICATE-----
+             Your intermediate certificate
+             -----END CERTIFICATE-----
+       - name: Import SNI certificate.
+         cloudwaf_sni_cert_method:
+           app_name: "{{application_name}}"
+           action: import
+           certificate: |
+             -----BEGIN CERTIFICATE-----
+             Your certificate
+             -----END CERTIFICATE-----
+           private_key: |
+             -----BEGIN RSA PRIVATE KEY-----
+             Your private key of the certificate
+             -----END RSA PRIVATE KEY-----
+           passwd: "Your password"
+       - name: sleep 120 seconds to make sure the configuration take effect
+         wait_for:
+           timeout: 120
+         delegate_to: localhost
+   ```
+
+2. Create the `hosts` inventory file:
+
+   ```
+   [fortiwebcloud]
+   fortiwebcloud01 ansible_host="api.fortiweb-cloud.com" ansible_user="Your Account" ansible_password="Your Password"
+   [fortiwebcloud:vars]
+   ansible_network_os=fortinet.fortiwebcloud.fortiwebcloud
+   ```
+
+3. Run the test:
+
+   ```bash
+   ansible-playbook fwbcld_app_create.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
+   ```
+
+**Example to delete the custom certificate and import a new one in Fortinet's FortiWeb Cloud**
+
+1. Create `fwbcld_app_with_custom_cert.yml` with the following template:
+
+   ```yaml
+   ---
+   - hosts: fortiwebcloud01
+     collections:
+       - fortinet.fortiwebcloud
+     connection: httpapi
+     vars:
+       application_name:  "YOUR_APP_NAME"
+       ansible_httpapi_validate_certs: False
+       ansible_httpapi_use_ssl: true
+       ansible_httpapi_port: 443
+     tasks:
+       - name: Get the SNI certificates.
+         cloudwaf_sni_cert_method:
+           app_name: "{{application_name}}"
+           action: get
+         register: sni_cert_id
+       - name: Delete SNI certificates.
+         cloudwaf_sni_cert_method:
+           app_name: "{{application_name}}"
+           action: delete
+           id: "{{ item.id }}"
+         with_items:
+           - "{{ sni_cert_id.meta }}"
+       - name: Get intermediate certificates.
+         cloudwaf_inter_cert_method:
+           app_name: "{{application_name}}"
+           action: get
+         register: inter_cert_id
+       - name: Delete Intermediate certificates.
+         cloudwaf_inter_cert_method:
+           app_name: "{{application_name}}"
+           action: delete
+           id: "{{ item.id }}"
+         with_items:
+           - "{{inter_cert_id.meta}}"
+       - name: sleep 120 seconds for the added app take effect
+         wait_for:
+           timeout: 120
+         delegate_to: localhost
+       - name: Update an application.
+         cloudwaf_endpoint_update:
+           app_name: "{{application_name}}"
+           http_status: 1
+           https_status: 1
+           http2_status: 1
+           cert_type: 1
+           ssl_options:
+             tls_1_0: 0
+             tls_1_1: 0
+             tls_1_2: 1
+             tls_1_3: 1
+             encryption_level: 1
+             http_2_https: 1
+           custom_block_page: enable
+           block_url: ''
+           custom_http_port: 80
+           custom_https_port: 443
+       - name: Import intermediate certificate.
+         cloudwaf_inter_cert_method:
+           app_name: "{{application_name}}"
+           action: import
+           certificate: |
+             -----BEGIN CERTIFICATE-----
+             Your intermediate certificate
+             -----END CERTIFICATE-----
+       - name: Import SNI certificate.
+         cloudwaf_sni_cert_method:
+           app_name: "{{application_name}}"
+           action: import
+           certificate: |
+             -----BEGIN CERTIFICATE-----
+             Your certificate
+             -----END CERTIFICATE-----
+           private_key: |
+             -----BEGIN RSA PRIVATE KEY-----
+             Your private key of the certificate
+             -----END RSA PRIVATE KEY-----
+           passwd: "Your password"
+       - name: sleep 120 seconds to make sure the configuration take effect
+         wait_for:
+           timeout: 120
+         delegate_to: localhost
+   ```
+
+2. Create the `hosts` inventory file:
+
+   ```
+   [fortiwebcloud]
+   fortiwebcloud01 ansible_host="api.fortiweb-cloud.com" ansible_user="Your Account" ansible_password="Your Password"
+   [fortiwebcloud:vars]
+   ansible_network_os=fortinet.fortiwebcloud.fortiwebcloud
+   ```
+
+3. Run the test:
+
+   ```bash
+   ansible-playbook fwbcld_app_create.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
+   ```
+
+
+
 ## License
+
 [License](https://github.com/fortinet/fortiwebcloud-ansible/blob/master/LICENSE)© Fortinet Technologies. All rights reserved.
 
 ## Support
