@@ -1,11 +1,12 @@
 namespace: "fortinet"
 name: "fortiwebcloud"
-version: "1.0.0"
+version: "1.0.2"
 description: "A collection of Ansible Modules for FortiwebCloud"
 readme: "README.md"
 authors:
     - Xilong Li (@xilongli14)
     - Xiangrang Zhang (@xrzhang3707)
+    - Chengwei Hu (@godwindy)
 dependencies: { }
 license:
     - "MIT"

@@ -42,6 +42,8 @@ version_added: "2.9"
 """
 import os
 import json
+import requests
+from ansible.module_utils.six.moves.urllib.parse import urlencode
 from ansible.plugins.httpapi import HttpApiBase
 from ansible.module_utils.basic import to_text
 from datetime import datetime
@@ -139,13 +141,35 @@ class HttpApi(HttpApiBase):
         data = message_kwargs.get('data', '')
         method = message_kwargs.get('method', 'GET')
         headers = message_kwargs.get("headers")
+        files = message_kwargs.get("files")
         self.log(f"url {url} send data: {data}")
-        self.log(f"send data header: {headers}")
-        try:
-            response, response_data = self.connection.send(url, data, method=method, headers=headers)
-            self.log(f"url {url} get response status: {response.status}.")
-            self.log(f"url {url} get response data: {response_data.getvalue()}.")
-            return response.status, to_text(response_data.getvalue())
-        except Exception as err:
-            self.log(f"url {url} error happend: {err}.")
-            raise Exception(err)
+        self.log(f"header: {headers}")
+        self.log(f"files: {files}")
+        f=[]
+        payload={}
+        if files:
+            if not self.by_token:
+                headers = self.connection._auth
+            del headers['Content-Type']
+            
+            self.log(f"send data header: {headers}")
+            for file in files:
+                f.append((file.get("name"), (os.path.basename(file.get("path")), open(file.get("path"), 'rb'), 'application/octet-stream')))
+            for k, v in json.loads(data).items():
+                if type(v) is str:
+                    payload[k] = v
+                else:
+                    payload[k]=json.dumps(v)
+            response = requests.request(method, self.connection._url + url, headers=headers, data=payload, files=f)
+            self.log(f"url {self.connection._url + url} get response status: {response.status_code}.")
+            self.log(f"url {url} get response data: {response.text}.")
+            return response.status_code, to_text(response.text)
+        else:
+            try:
+                response, response_data = self.connection.send(url, data, method=method, headers=headers)
+                self.log(f"url {url} get response status: {response.status}.")
+                self.log(f"url {url} get response data: {response_data.getvalue()}.")
+                return response.status, to_text(response_data.getvalue())
+            except Exception as err:
+                self.log(f"url {url} error happend: {err}.")
+                raise Exception(err)

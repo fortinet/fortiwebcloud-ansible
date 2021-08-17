@@ -1,0 +1,24 @@
+---
+
+- name: Execute cloud api
+  hosts: fortiwebcloud01
+  gather_facts: no
+  collections:
+    - fortinet.fortiwebcloud
+  connection: httpapi
+  vars:
+    ansible_httpapi_validate_certs: False
+    ansible_httpapi_use_ssl: true
+    ansible_httpapi_port: 443
+    application_name: "YOUR_APP_NAME"
+
+  tasks:
+    - name: Setup OpenApi Validation
+      cloudwaf_openapi_validation:
+        app_name: "{{application_name}}"
+        force: True
+        enable: True
+        action: "alert"
+        validation_files:
+          - /path/openapi_validation_file_1.yaml
+          - /path/openapi_validation_file_2.yaml

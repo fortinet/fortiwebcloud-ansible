@@ -14,7 +14,7 @@
   tasks:
   - name: Configure intermediate certificates.
     cloudwaf_inter_cert_method:
-      api_token: "You must specify a token."
+      api_token: "{{fortiwebcloud_api_token}}"  #if you prefer access token based authentication, add this line.
       app_name: "{{application_name}}"
       action: import
       certificate: <YOUR-CERTIFICATE>

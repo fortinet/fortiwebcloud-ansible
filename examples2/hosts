@@ -1,5 +1,5 @@
-[fortiwebcloud]
-fortiwebcloud01 ansible_host="api.fortiwebcloudmgt.com"
+[fortiwebcloud] 
+fortiwebcloud01 ansible_host="api.fortiweb-cloud.com" fortiwebcloud_api_token=<your api access token>
 
 [fortiwebcloud:vars]
 ansible_network_os=fortinet.fortiwebcloud.fortiwebcloud

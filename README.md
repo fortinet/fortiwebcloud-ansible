@@ -14,13 +14,15 @@ The collection is the FortiWeb Cloud Ansible Automation project. It includes the
 This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.com/), with installation steps as follows:
 
 1. Install or upgrade to Ansible 2.9+.
-2. Install the collection with the command `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.0`.
+2. Install the collection with the command `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.2`.
 
 ## Supported FortiWeb Cloud Versions
 | FortiWeb Cloud Version | Galaxy  Version | Release Date | Install Path |
 | --- | :---: | :---: | :---: |
-| 20.2.d | `latest` | 2020/6/30 | `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.0` |
+| 21.3.b | `latest` | 2021/8/30 | `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.2` |
 
+## Compatibility
+This integration has been tested against Ansible version 2.9.6. Versions above this are expected to work but have not been tested.
 ## Modules
 
 | Module Name | Description |
@@ -31,6 +33,7 @@ This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.c
 | cloudwaf_endpoint_update | Modify the endpoint configuration of the application. |
 | cloudwaf_inter_cert_method | Configure intermediate certificates for the application. |
 | cloudwaf_sni_cert_method | Configure SNI certificates for the application. |
+| cloudwaf_openapi_validation | Configure Openapi Validation for the application. |
 
 ## Usage
 
@@ -381,6 +384,51 @@ More information about the usage can be found in [Fortinet's FortiWeb Cloud Onli
    ansible-playbook fwbcld_app_create.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
    ```
 
+**Example to configure OpenAPI Validation  in Fortinet's FortiWeb Cloud**
+
+1. Create `fwbcld_openapi_validation.yml` with the following template:
+
+   ```yaml
+    ---
+    - name: Execute cloud api
+      hosts: fortiwebcloud01
+      gather_facts: no
+      collections:
+        - fortinet.fortiwebcloud
+      connection: httpapi
+      vars:
+        ansible_httpapi_validate_certs: False
+        ansible_httpapi_use_ssl: true
+        ansible_httpapi_port: 443
+        application_name: "YOUR_APP_NAME"
+
+      tasks:
+        - name: Setup OpenApi Validation
+          cloudwaf_openapi_validation:
+            app_name: "{{application_name}}"
+            enable: True
+            action: "alert", "alert_deny", or "deny_no_log"
+            validation_files:
+              - /path/openapi_validation_file_1.yaml
+              - /path/openapi_validation_file_2.yaml
+   ```
+
+2. Create the `hosts` inventory file:
+
+   ```
+
+    [fortiwebcloud]
+    fortiwebcloud01 ansible_host="api.fortiweb-cloud.com" ansible_user="Your Account" ansible_password="Your Password"
+
+    [fortiwebcloud:vars]
+    ansible_network_os=fortinet.fortiwebcloud.fortiwebcloud
+   ```
+
+3. Run the test:
+
+   ```bash
+    ansible-playbook fwbcld_openapi_validation.yml -i hosts  -e 'ansible_python_interpreter=/usr/bin/python3'
+   ```
 
 
 ## License

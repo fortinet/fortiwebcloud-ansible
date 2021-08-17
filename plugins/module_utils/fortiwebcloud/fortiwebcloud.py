@@ -41,10 +41,10 @@ class CloudWafAPIHandler(object):
             self.by_token = True
             self.token = token
 
-    def send_req(self, url, data="", headers={}, method="GET"):
+    def send_req(self, url, data="", files=None, headers={}, method="GET"):
         if self.by_token:
             headers["Authorization"] = "Basic " + self.token
-        status, result_data = self._conn.send_request(url=url, data=data, headers=headers, method=method)
+        status, result_data = self._conn.send_request(url=url, data=data, files=files, headers=headers, method=method)
         return status, result_data
 
 
