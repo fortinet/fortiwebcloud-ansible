@@ -19,7 +19,8 @@ This collection can be downloaded from [ansible-galaxy](https://galaxy.ansible.c
 ## Supported FortiWeb Cloud Versions
 | FortiWeb Cloud Version | Galaxy  Version | Release Date | Install Path |
 | --- | :---: | :---: | :---: |
-| 21.3.b | `latest` | 2021/8/30 | `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.2` |
+| 21.3.b |  | 2021/8/30 | `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.2` |
+| 21.4.a | `latest` | 2021/10/08 | `ansible-galaxy collection install fortinet.fortiwebcloud:1.0.3` |
 
 ## Compatibility
 This integration has been tested against Ansible version 2.9.6. Versions above this are expected to work but have not been tested.
@@ -69,6 +70,7 @@ More information about the usage can be found in [Fortinet's FortiWeb Cloud Onli
             origin_server_service: "HTTPS"
             origin_server_port: "443"
             cdn: False
+            continent_cdn: False
             block: False
             template: "your-template-name-or-empty"
     ```

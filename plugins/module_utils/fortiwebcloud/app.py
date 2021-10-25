@@ -64,6 +64,13 @@ class AppCreate(RequestBase):
             api_data["server_country"] = region.get("location")
             api_data["region"] = region.get("cluster").get("single")
 
+        if data.get("continent_cdn"):
+            api_data["is_global_cdn"] = 0
+        else:
+            api_data["is_global_cdn"] = 1
+
+        api_data["continent"] = region.get("cluster").get("continent")
+
         if template:
             api_data["template_enable"] = 1
             api_data["template_id"] = template

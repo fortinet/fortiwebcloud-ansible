@@ -28,5 +28,6 @@
         origin_server_service: "HTTPS"
         origin_server_port: "443"
         cdn: False
+        continent_cdn: False
         block: False
         template: "your-template-name-or-empty"

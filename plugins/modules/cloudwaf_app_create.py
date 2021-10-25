@@ -59,6 +59,12 @@ options:
         default: False
         choices: [True, False]
         required: False
+    continent_cdn:
+        description:
+            - Set to true to enbale the continent CDN.
+        default: False
+        choices: [True, False]
+        required: False
     block:
         description:
             - Set to true to enable block mode for your app.
@@ -95,6 +101,7 @@ def main():
             origin_server_service=dict(type='str', required=False, default="HTTPS"),
             origin_server_port=dict(type='int', required=False, default=443),
             cdn=dict(type='bool', required=False, default=False),
+            continent_cdn=dict(type='bool', required=False, default=False),
             block=dict(type='bool', required=False, default=False),
             template=dict(type='str', required=False, default=""),
             api_token=dict(type='str', required=False, default=""),
@@ -133,6 +140,7 @@ def main():
             "backend_type": module.params['origin_server_service'],
             "port": module.params['origin_server_port'],
             "cdn": module.params['cdn'],
+            "continent_cdn": module.params['continent_cdn'],
             "block": 1 if module.params['block'] else 0,
             "template": module.params['template'],
             "handler": api_handler
