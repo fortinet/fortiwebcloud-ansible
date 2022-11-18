@@ -36,7 +36,7 @@ class Template(RequestBase):
         super().__init__(path="template", handler=handler)
 
     def get_id_by_name(self, name):
-        templates = self.send()
+        status, templates = self.send()
         if name.strip() != "":
             tlist = templates.get("result", [])
             for t in tlist:

@@ -92,23 +92,23 @@ class RequestBase(object):
 
     def get(self, data={}):
         status, res = self.handler.send_req(self.url, headers=self.headers, method="GET")
-        return res
+        return status, res
 
     def delete(self, data={}):
         status, res = self.handler.send_req(self.url, headers=self.headers, method="DELETE")
-        return res
+        return status, res
 
     def put(self, data={}, files=None):
         status, res = self.handler.send_req(
             self.url, headers=self.headers, 
             data=json.dumps(data), files=files, method="PUT")
-        return res
+        return status, res
 
     def post(self, data={}):
-        _, res = self.handler.send_req(
+        status, res = self.handler.send_req(
             self.url, headers=self.headers,
             data=json.dumps(data), method="POST")
-        return res
+        return status, res
 
     def send(self, data=None, files=None):
         """
@@ -125,15 +125,15 @@ class RequestBase(object):
             f = files or self.files
             print(f"send files {f}")
             if f:
-                response = method_val(data=d, files=f)
+                status, response = method_val(data=d, files=f)
             else:
-                response = method_val(data=d)
+                status, response = method_val(data=d)
             try:
                 response = json.loads(response)
             except Exception as e:
                 raise Exception(f"Get response json content failed for {e}.")
             duration = time.time() - ts
-            print(f"URL:{self.url}, method:{self.method} finished, duration:{duration}.")
-            return response
+            print(f"URL:{self.url}, method:{self.method} finished, status:{status} duration:{duration}.")
+            return status, response
         except Exception as e:
             raise Exception("Failed to connect to %s: %s." % (self.url, e))

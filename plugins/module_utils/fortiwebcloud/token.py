@@ -39,5 +39,5 @@ class Token(RequestBase):
         super().__init__(method='POST', path='token', data=data, handler=handler)
 
     def get_token(self):
-        data = self.send()
+        status, data = self.send()
         return data.get("token", None)

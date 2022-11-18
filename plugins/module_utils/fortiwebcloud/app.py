@@ -59,17 +59,15 @@ class AppCreate(RequestBase):
                           "head_status_code": test_result.get("head_status_code", 200)})
         if data.get("cdn"):
             api_data["cdn_status"] = 1
+            if data.get("continent_cdn"):
+                api_data["is_global_cdn"] = 0
+                api_data["continent"] = region.get("cluster").get("continent")
+            else:
+                api_data["is_global_cdn"] = 1
         else:
             api_data["cdn_status"] = 0
             api_data["server_country"] = region.get("location")
             api_data["region"] = region.get("cluster").get("single")
-
-        if data.get("continent_cdn"):
-            api_data["is_global_cdn"] = 0
-        else:
-            api_data["is_global_cdn"] = 1
-
-        api_data["continent"] = region.get("cluster").get("continent")
 
         if template:
             api_data["template_enable"] = 1
@@ -93,7 +91,6 @@ class AppCreate(RequestBase):
     def create(self):
         return self.send()
 
-
 class AppQuery(RequestBase):
     def __init__(self, domain="", app_name="", handler=None, **kwargs ):
         self.domain = domain
@@ -109,7 +106,7 @@ class AppQuery(RequestBase):
         super().__init__(path=url, query=con, handler=handler)
 
     def get_ep(self):
-        res = self.send()
+        status, res = self.send()
         if isinstance(res, dict):
             app_list = res.get("app_list", [])
         elif isinstance(res, list):
@@ -181,7 +178,11 @@ def create_app(data={}):
     if not app.check():  # exist app
         return {}, False
     else:
-        return app.create(), True
+        status, res = app.create()
+        print(f"create app :  status {status}, res {res}")
+        if (status != 200):
+            raise Exception("The application creating failure: %s" % res)
+        return res, True
 
 
 def del_app(data={}):

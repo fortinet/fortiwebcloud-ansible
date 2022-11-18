@@ -148,10 +148,14 @@ def main():
         if module.params.get('action') == 'get':
             con = dict({"size": 10, "cursor": "", "forward": True})
             is_error, changed, res = get_waf_config(data, api_handler, 'snicertificate', con)
+            if is_error:
+                module.fail_json(msg="During app configuration, an error occurred:" + res["error"])
             con['cursor'] = res['next_cursor']
             hits = res['hits']
             while res['next_cursor']:
                 is_error, changed, res = get_waf_config(data, api_handler, 'snicertificate', con)
+                if is_error:
+                    module.fail_json(msg="During app configuration, an error occurred:" + res["error"])
                 con['cursor'] = res['next_cursor']
                 hits = hits + res['hits']
 

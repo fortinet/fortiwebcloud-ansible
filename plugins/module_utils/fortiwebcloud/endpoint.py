@@ -43,7 +43,7 @@ class EndpointGet(RequestBase):
         super().__init__(path=f"application/{self.ep_id}/endpoint", handler=handler)
 
     def get_ep_data(self):
-        res = self.send()
+        status, res = self.send()
         return res
 
 
@@ -53,8 +53,8 @@ class EndpointUpdate(RequestBase):
         super().__init__(method='PUT', path=f"application/{self.ep_id}", data=data, handler=handler)
 
     def update_ep(self):
-        res = self.send()
-        return res
+        status, res = self.send()
+        return status, res
 
 
 def update_endpoint(data=None, handler=None):
@@ -76,9 +76,9 @@ def update_endpoint(data=None, handler=None):
                 old_data.pop(key)
         if not config_is_same(data, old_data):
             endpoint = EndpointUpdate(data=data, handler=handler, ep_id=ep_id)
-            res = endpoint.update_ep()
+            st, res = endpoint.update_ep()
             has_changed = True
-        if res['detail'] == 'successfully':
+        if res is not None and st == 200:
             is_error = False
 
         return is_error, has_changed, res

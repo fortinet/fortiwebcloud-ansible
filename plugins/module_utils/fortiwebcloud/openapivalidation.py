@@ -45,8 +45,9 @@ from ansible_collections.fortinet.fortiwebcloud.plugins.module_utils.fortiwebclo
 class OpenApiValation(RequestBase):
     def __init__(self, force=True, handler=None, ep_id="", validation_files=[], enable=True, action="", api_token=""):
         data = {
-            "action":action,
-            "OpenAPIValidationPolicy":{"schema-file":[]}
+            "action": action,
+            "template_status": "disable",
+            "OpenAPIValidationPolicy": {"schema-file": []}
         }
         self.force = force
         self.validation_files = validation_files
@@ -54,17 +55,17 @@ class OpenApiValation(RequestBase):
         self.enable = False if enable == False else True
         self.api_token = api_token
         self.action = action
-        super().__init__(method='PUT', path=f"application/{self.ep_id}/apiprotection", data=data, handler=handler)
+        super().__init__(method='PUT', path=f"application/{self.ep_id}/APIProtection", data=data, handler=handler)
 
 
     def del_all(self):
         self.data = {
-            "action":self.action,
-            "OpenAPIValidationPolicy":{"schema-file":[
-            ]}
+            "action": self.action,
+            "template_status": "disable",
+            "OpenAPIValidationPolicy": {"schema-file": []}
         }
-        ret = self.send()
-        if(ret != None and ret.get("detail") == "successfully"):
+        status, ret = self.send()
+        if ret is not None and status == 200:
             print("Empty OpenApi Validation successfully")
         else:
             raise Exception(ret)
@@ -82,13 +83,14 @@ class OpenApiValation(RequestBase):
         status = "enable" if self.enable else "disable"
         try:
             self.data = {
-                "action":self.action,
-                "OpenAPIValidationPolicy":{"schema-file":schema_file},
+                "action": self.action,
+                "template_status": "disable",
+                "OpenAPIValidationPolicy": {"schema-file": schema_file},
                 "_status": status
             }
             self.files = files
-            response_text = self.send()
-            return response_text
+            st, response_text = self.send()
+            return st, response_text
         except Exception as e:
             raise Exception(e)
 
@@ -105,8 +107,8 @@ def setup_openapi_validation(data={}):
     ep_id = query.get_ep_id()
     if ep_id:
         module = OpenApiValation(handler=api_handler, force=force, ep_id=ep_id, validation_files=validation_files, api_token=api_token, enable=enable, action=action)
-        response_text = module.do_setup_openapi_validation()
-        if(response_text != None and response_text.get("detail") == "successfully"):
+        st, response_text = module.do_setup_openapi_validation()
+        if(response_text != None and st == 200):
             return "Setup OpenApi Validation successfully", True
         else:
             raise Exception(f"setup openapi validation fail: " + str(response_text))

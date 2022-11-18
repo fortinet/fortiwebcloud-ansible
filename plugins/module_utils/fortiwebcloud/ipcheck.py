@@ -43,14 +43,14 @@ class ServerTest(RequestBase):
         super().__init__(path="misc/backend-ip-test", query=self.query_data, handler=handler)
 
     def pserver_test(self):
-        res = self.send()
+        status, res = self.send()
         if res.get("network_connectivity", 0) == 1:
             return res
         else:
             if len(self.server_list) > 0:  # poll by cname
                 for e in self.server_list[1:-1]:
                     self.query_data["backend_ip"] = e
-                    res = self.send(data=self.query_data)
+                    status, res = self.send(data=self.query_data)
                     if res.get("network_connectivity", 0) == 1:
                         return res
 
@@ -63,7 +63,7 @@ class DnsLookup(RequestBase):
         super().__init__(path="misc/dns-lookup", handler=handler, method="POST", data=api_data)
 
     def get_server_address(self):
-        res = self.send()
+        status, res = self.send()
         addresses = res.get("A", [])
         if len(addresses) > 0:
             return addresses
@@ -84,7 +84,7 @@ class IPRegion(RequestBase):
         super().__init__(path="misc/check-ip-region", method="POST", data=self.api_data, handler=handler)
 
     def get_ip_region(self):
-        res = self.send()
+        status, res = self.send()
         loc = res.get("location")
         if loc:
             print(f"Check the server belong to the country/region {loc}.")
@@ -93,7 +93,7 @@ class IPRegion(RequestBase):
             if len(self.server_list) > 0:  # poll by cname
                 for e in self.server_list[1:-1]:
                     self.api_data["ep_ip"] = e
-                    res = self.send(data=self.api_data)
+                    status, res = self.send(data=self.api_data)
                     if res.get("location"):
                         return res
 

@@ -44,7 +44,8 @@ class WafConfigUpdate(RequestBase):
         super().__init__(method='PUT', path=url, data=data, handler=handler)
 
     def update(self):
-        return self.send()
+        status, res = self.send()
+        return status, res
 
 
 class WafConfigGet(RequestBase):
@@ -53,7 +54,8 @@ class WafConfigGet(RequestBase):
         super().__init__(path=url, query=query, handler=handler)
 
     def get_data(self):
-        return self.send()
+        status, res = self.send()
+        return res
 
 
 def get_new_config_data(old_data, new_data):
@@ -105,10 +107,10 @@ def update_waf_config(data={}, handler=None, module_name=''):
             api_data = get_new_config_data(old_data['result'], new_data)
         if not api_data == init_con_data:
             waf_config = WafConfigUpdate(url, api_data, handler)
-            res = waf_config.update()
+            st, res = waf_config.update()
             has_changed = True
 
-        if res['detail'] == 'successfully':
+        if res is not None and st == 200:
             is_error = False
 
         return is_error, has_changed, res
@@ -139,5 +141,9 @@ def get_waf_config(data={}, handler=None, module_name='', query={}):
         waf_config = WafConfigGet(url, data, handler, query)
         res = waf_config.get_data()
         is_error = False
+    else:
+        error_str = "App: {} not found!".format(app_name)
+        res["error"] = error_str
+        print(error_str)
     return is_error, has_changed, res
 
